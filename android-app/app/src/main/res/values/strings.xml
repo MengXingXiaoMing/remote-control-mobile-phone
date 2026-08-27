@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">远程控制</string>
+    <string name="accessibility_description">允许远程控制端模拟触摸操作，实现远程协助家人操作手机。</string>
+</resources>

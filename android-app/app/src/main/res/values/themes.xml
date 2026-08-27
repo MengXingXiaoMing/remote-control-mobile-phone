@@ -1,0 +1,16 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <style name="Theme.RemoteControl" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">#58A6FF</item>
+        <item name="colorPrimaryVariant">#1E88E5</item>
+        <item name="colorOnPrimary">#FFFFFF</item>
+        <item name="android:statusBarColor">#0F1419</item>
+        <item name="android:windowBackground">#0F1419</item>
+        <item name="android:navigationBarColor">#0F1419</item>
+    </style>
+
+    <style name="ConfirmDialogTheme" parent="Theme.MaterialComponents.DayNight.Dialog.Alert">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="colorPrimary">#238636</item>
+        <item name="android:background">#161B22</item>
+    </style>
+</resources>

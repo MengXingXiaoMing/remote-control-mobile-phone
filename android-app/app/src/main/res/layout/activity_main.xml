@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#0F1419"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="24dp"
+        android:gravity="center_horizontal">
+
+        <!-- 标题 -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="远程控制"
+            android:textColor="#E6EDF3"
+            android:textSize="28sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="让家人远程帮你操作手机"
+            android:textColor="#8B949E"
+            android:textSize="14sp" />
+
+        <!-- 服务器地址 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="服务器地址"
+                android:textColor="#8B949E"
+                android:textSize="13sp" />
+
+            <TextView
+                android:id="@+id/tv_clear_history"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="2dp"
+                android:text="清空历史"
+                android:textColor="#58A6FF"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+        <AutoCompleteTextView
+            android:id="@+id/et_server_url"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:background="@drawable/edit_text_bg"
+            android:completionThreshold="1"
+            android:dropDownHeight="240dp"
+            android:hint="wss://你的服务器IP:3000"
+            android:inputType="textUri"
+            android:padding="14dp"
+            android:textColor="#E6EDF3"
+            android:textColorHint="#484F58"
+            android:textSize="15sp" />
+
+        <!-- 无障碍服务状态 -->
+        <TextView
+            android:id="@+id/tv_accessibility_status"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:padding="12dp"
+            android:text="无障碍服务状态"
+            android:textSize="14sp"
+            android:visibility="gone" />
+
+        <Button
+            android:id="@+id/btn_accessibility"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/btn_secondary_bg"
+            android:padding="12dp"
+            android:text="开启无障碍服务"
+            android:textColor="#58A6FF"
+            android:visibility="gone" />
+
+        <!-- 开始/停止按钮 -->
+        <Button
+            android:id="@+id/btn_toggle"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_marginTop="24dp"
+            android:background="@drawable/btn_primary_bg"
+            android:text="开始远程控制"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <!-- 配对码 -->
+        <LinearLayout
+            android:id="@+id/layout_code"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:background="@drawable/card_bg"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="32dp"
+            android:visibility="gone">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="配对码"
+                android:textColor="#8B949E"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/tv_pairing_code"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:letterSpacing="0.15"
+                android:text="------"
+                android:textColor="#58A6FF"
+                android:textSize="48sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="在控制端网页输入此配对码"
+                android:textColor="#8B949E"
+                android:textSize="12sp" />
+
+        </LinearLayout>
+
+        <!-- 状态 -->
+        <TextView
+            android:id="@+id/tv_status"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:gravity="center"
+            android:text="准备就绪"
+            android:textColor="#8B949E"
+            android:textSize="14sp" />
+
+        <!-- 慈善说明 -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:gravity="center"
+            android:lineSpacingExtra="4dp"
+            android:text="本软件用于慈善，服务器较小，请大家有需要时再用，或使用自己的服务器。本软件主要用于帮助老人操作手机，其他用途请尽量少用，谢谢大家。"
+            android:textColor="#484F58"
+            android:textSize="12sp" />
+
+    </LinearLayout>
+</ScrollView>

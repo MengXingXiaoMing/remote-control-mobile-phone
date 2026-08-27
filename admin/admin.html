@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>远程控制 · 管理面板</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif;
+            background: #f0f2f5; color: #1f2329; padding: 24px;
+        }
+        .wrap { max-width: 900px; margin: 0 auto; }
+        h1 { font-size: 22px; margin-bottom: 6px; }
+        .sub { color: #6b7280; font-size: 13px; margin-bottom: 20px; }
+        .card {
+            background: #fff; border-radius: 12px; padding: 22px;
+            box-shadow: 0 1px 3px rgba(0,0,0,.08); margin-bottom: 18px;
+        }
+        .card h2 { font-size: 15px; margin-bottom: 16px; color: #111827; }
+        .row { display: flex; flex-wrap: wrap; gap: 14px; }
+        .field { flex: 1 1 200px; }
+        .field label { display: block; font-size: 12px; color: #6b7280; margin-bottom: 5px; }
+        .field input {
+            width: 100%; padding: 9px 11px; border: 1px solid #d1d5db;
+            border-radius: 8px; font-size: 14px; outline: none;
+        }
+        .field input:focus { border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59,130,246,.15); }
+        .btns { display: flex; gap: 12px; margin-top: 18px; flex-wrap: wrap; }
+        .btn {
+            padding: 10px 20px; border: none; border-radius: 8px; font-size: 14px;
+            cursor: pointer; font-weight: 600; transition: opacity .15s; color: #fff;
+        }
+        .btn:disabled { opacity: .55; cursor: not-allowed; }
+        .btn-primary { background: #3b82f6; }
+        .btn-green { background: #10b981; }
+        .btn-gray { background: #6b7280; }
+        .btn-danger { background: #ef4444; }
+        .status { font-size: 13px; margin-top: 12px; color: #374151; }
+        .status.error { color: #dc2626; }
+
+        /* 控制区 */
+        .ctrl-screen { display: none; margin-top: 16px; }
+        .ctrl-screen.show { display: block; }
+        .ctrl-canvas-wrap {
+            position: relative; display: flex; justify-content: center; align-items: center;
+            background: #000; border-radius: 10px; overflow: hidden; min-height: 120px;
+        }
+        #ctrl-canvas { max-width: 100%; max-height: 62vh; touch-action: none; display: block; }
+        .ctrl-loading {
+            position: absolute; inset: 0; display: flex; align-items: center;
+            justify-content: center; color: #9ca3af; font-size: 14px;
+        }
+        .ctrl-bar { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
+        .ctrl-bar .btn { background: #4b5563; }
+        .ctrl-bar .btn.danger { background: #ef4444; }
+
+        .output {
+            background: #0f172a; color: #d1fae5; border-radius: 10px;
+            padding: 16px; font-family: Consolas, Menlo, monospace; font-size: 12.5px;
+            line-height: 1.6; white-space: pre-wrap; word-break: break-all;
+            min-height: 120px; max-height: 460px; overflow: auto; margin-top: 14px;
+        }
+        .output.error { color: #fca5a5; }
+        .hint { font-size: 12px; color: #9ca3af; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <div class="wrap">
+        <h1>远程控制 · 管理面板</h1>
+        <div class="sub">填写服务器地址和配对码即可连接手机；下方可部署服务器、修改排队上限、查询日志</div>
+
+        <!-- 远程控制卡片 -->
+        <div class="card">
+            <h2>远程控制</h2>
+            <div class="row">
+                <div class="field">
+                    <label>服务器地址</label>
+                    <input id="ctrl-server-url" placeholder="wss://服务器地址:3000">
+                </div>
+                <div class="field" style="flex:0 0 150px;">
+                    <label>配对码（6位数字）</label>
+                    <input id="ctrl-code" placeholder="123456" maxlength="6" inputmode="numeric">
+                </div>
+                <div class="field" style="flex:0 0 140px;">
+                    <label>&nbsp;</label>
+                    <button id="btn-connect" class="btn btn-primary" style="width:100%;">连接设备</button>
+                </div>
+            </div>
+            <div class="status" id="ctrl-status"></div>
+
+            <div class="ctrl-screen" id="ctrl-screen">
+                <div class="ctrl-canvas-wrap">
+                    <canvas id="ctrl-canvas"></canvas>
+                    <div class="ctrl-loading" id="ctrl-loading">等待画面传输...</div>
+                </div>
+                <div class="ctrl-bar">
+                    <button id="btn-back" class="btn">返回</button>
+                    <button id="btn-home" class="btn">主页</button>
+                    <button id="btn-recents" class="btn">任务</button>
+                    <button id="btn-disconnect" class="btn danger">断开</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 服务器配置卡片 -->
+        <div class="card">
+            <h2>服务器配置（部署）</h2>
+            <div class="row">
+                <div class="field">
+                    <label>服务器地址（IP）</label>
+                    <input id="host" placeholder="你的服务器IP">
+                </div>
+                <div class="field" style="flex:0 0 90px;">
+                    <label>端口</label>
+                    <input id="port" value="22">
+                </div>
+                <div class="field" style="flex:0 0 120px;">
+                    <label>用户名</label>
+                    <input id="username" value="root">
+                </div>
+            </div>
+            <div class="row" style="margin-top:14px;">
+                <div class="field">
+                    <label>root 密码</label>
+                    <input id="password" type="password" placeholder="服务器登录密码">
+                </div>
+                <div class="field" style="flex:0 0 160px;">
+                    <label>排队上限（并发路数）</label>
+                    <input id="maxConcurrent" value="100">
+                </div>
+                <div class="field" style="flex:0 0 120px;">
+                    <label>日志行数</label>
+                    <input id="lines" value="100">
+                </div>
+            </div>
+
+            <div class="btns">
+                <button class="btn btn-primary" id="btn-deploy">部署到服务器</button>
+                <button class="btn btn-green" id="btn-logs">查询日志</button>
+                <button class="btn btn-gray" id="btn-clear">清空输出</button>
+            </div>
+            <div class="status" id="status"></div>
+        </div>
+
+        <!-- 输出卡片 -->
+        <div class="card">
+            <h2>输出</h2>
+            <div class="output" id="output">就绪。填写服务器配置后，点击"部署到服务器"或"查询日志"。</div>
+            <div class="hint">部署会覆盖服务器上的 server.js / web-controller / certs，并把排队上限写入服务器配置。</div>
+        </div>
+    </div>
+
+    <script>
+        const $ = (id) => document.getElementById(id);
+
+        // ================= 远程控制 =================
+        let ctrlWs = null;
+        let ctrlRejected = false;
+        const ctrlCanvas = $('ctrl-canvas');
+        const ctrlCtx = ctrlCanvas.getContext('2d');
+        let ctrlPointerDown = false;
+        let ctrlPointerStart = { x: 0, y: 0, time: 0 };
+        let ctrlLastMove = 0;
+        let ctrlBlobUrl = null;
+
+        function setCtrlStatus(msg, type) {
+            const s = $('ctrl-status');
+            s.textContent = msg;
+            s.className = 'status ' + (type || '');
+        }
+
+        $('btn-connect').addEventListener('click', () => {
+            const serverUrl = $('ctrl-server-url').value.trim();
+            const code = $('ctrl-code').value.trim();
+
+            if (!serverUrl) return setCtrlStatus('请输入服务器地址', 'error');
+            if (!code || code.length < 4) return setCtrlStatus('请输入配对码', 'error');
+
+            $('btn-connect').disabled = true;
+            setCtrlStatus('正在连接服务器...', '');
+
+            // 经本机管理面板代理转发到中继服务器，避免浏览器因自签名证书拒绝 wss 连接
+            const proxyUrl = 'ws://' + location.host + '/ws?target=' + encodeURIComponent(serverUrl);
+            try {
+                ctrlWs = new WebSocket(proxyUrl);
+            } catch (e) {
+                setCtrlStatus('地址格式错误', 'error');
+                $('btn-connect').disabled = false;
+                return;
+            }
+
+            ctrlWs.binaryType = 'arraybuffer';
+
+            ctrlWs.onopen = () => {
+                setCtrlStatus('正在配对...', '');
+                ctrlWs.send(JSON.stringify({ type: 'register', role: 'controller', code }));
+            };
+
+            ctrlWs.onmessage = (event) => {
+                if (event.data instanceof ArrayBuffer) {
+                    drawCtrlFrame(event.data);
+                } else {
+                    handleCtrlMessage(JSON.parse(event.data));
+                }
+            };
+
+            ctrlWs.onerror = () => {
+                setCtrlStatus('连接失败，请检查地址', 'error');
+                $('btn-connect').disabled = false;
+            };
+
+            ctrlWs.onclose = () => {
+                if ($('ctrl-screen').classList.contains('show')) {
+                    backToCtrl('连接已断开');
+                } else {
+                    if (!ctrlRejected) setCtrlStatus('连接已关闭', 'error');
+                    ctrlRejected = false;
+                    $('btn-connect').disabled = false;
+                }
+            };
+        });
+
+        function handleCtrlMessage(msg) {
+            switch (msg.type) {
+                case 'paired':
+                    $('ctrl-screen').classList.add('show');
+                    setCtrlStatus('已连接');
+                    $('btn-connect').disabled = false;
+                    break;
+                case 'waiting_for_device':
+                    setCtrlStatus('等待设备上线...请在手机上打开被控端App', '');
+                    break;
+                case 'waiting_confirmation':
+                    setCtrlStatus('等待对方确认...请让对方在手机上点击"允许"', '');
+                    break;
+                case 'rejected':
+                    ctrlRejected = true;
+                    setCtrlStatus('对方拒绝了远程控制请求', 'error');
+                    break;
+                case 'busy':
+                    ctrlRejected = true;
+                    setCtrlStatus('该设备已被其他控制端占用，请稍后再试', 'error');
+                    break;
+                case 'connect_error':
+                    ctrlRejected = true;
+                    setCtrlStatus('无法连接服务器，请检查服务器地址和网络', 'error');
+                    break;
+                case 'queued':
+                    setCtrlStatus('当前服务器繁忙，您排在第 ' + msg.position + ' 位，请稍候...', '');
+                    break;
+                case 'disconnected':
+                    backToCtrl('设备已断开连接');
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        function backToCtrl(reason) {
+            if (ctrlWs) { ctrlWs.close(); ctrlWs = null; }
+            $('ctrl-screen').classList.remove('show');
+            setCtrlStatus(reason, 'error');
+            $('btn-connect').disabled = false;
+            $('ctrl-loading').style.display = 'flex';
+            ctrlCtx.clearRect(0, 0, ctrlCanvas.width, ctrlCanvas.height);
+        }
+
+        function drawCtrlFrame(data) {
+            $('ctrl-loading').style.display = 'none';
+            if (ctrlBlobUrl) URL.revokeObjectURL(ctrlBlobUrl);
+            const blob = new Blob([data], { type: 'image/jpeg' });
+            ctrlBlobUrl = URL.createObjectURL(blob);
+            const img = new Image();
+            img.onload = () => {
+                if (ctrlCanvas.width !== img.width || ctrlCanvas.height !== img.height) {
+                    ctrlCanvas.width = img.width;
+                    ctrlCanvas.height = img.height;
+                }
+                ctrlCtx.drawImage(img, 0, 0);
+                URL.revokeObjectURL(ctrlBlobUrl);
+                ctrlBlobUrl = null;
+            };
+            img.src = ctrlBlobUrl;
+        }
+
+        function ctrlSend(cmd) {
+            if (ctrlWs && ctrlWs.readyState === WebSocket.OPEN) {
+                ctrlWs.send(JSON.stringify(cmd));
+            }
+        }
+
+        function ctrlCoords(clientX, clientY) {
+            const rect = ctrlCanvas.getBoundingClientRect();
+            const scaleX = ctrlCanvas.width / rect.width;
+            const scaleY = ctrlCanvas.height / rect.height;
+            return { x: (clientX - rect.left) * scaleX, y: (clientY - rect.top) * scaleY };
+        }
+
+        ctrlCanvas.addEventListener('mousedown', (e) => {
+            ctrlPointerDown = true;
+            const p = ctrlCoords(e.clientX, e.clientY);
+            ctrlPointerStart = { x: p.x, y: p.y, time: Date.now() };
+            ctrlLastMove = Date.now();
+        });
+        ctrlCanvas.addEventListener('mousemove', (e) => {
+            if (!ctrlPointerDown) return;
+            const now = Date.now();
+            if (now - ctrlLastMove < 50) return;
+            ctrlLastMove = now;
+            const p = ctrlCoords(e.clientX, e.clientY);
+            ctrlSend({ type: 'swipe_move', x: p.x, y: p.y });
+        });
+        ctrlCanvas.addEventListener('mouseup', (e) => {
+            if (!ctrlPointerDown) return;
+            ctrlPointerDown = false;
+            const p = ctrlCoords(e.clientX, e.clientY);
+            const dx = p.x - ctrlPointerStart.x, dy = p.y - ctrlPointerStart.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist < 20) ctrlSend({ type: 'tap', x: p.x, y: p.y });
+            else ctrlSend({ type: 'swipe', x1: ctrlPointerStart.x, y1: ctrlPointerStart.y, x2: p.x, y2: p.y, duration: Date.now() - ctrlPointerStart.time });
+        });
+        ctrlCanvas.addEventListener('mouseleave', (e) => {
+            if (!ctrlPointerDown) return;
+            ctrlPointerDown = false;
+            const p = ctrlCoords(e.clientX, e.clientY);
+            const dx = p.x - ctrlPointerStart.x, dy = p.y - ctrlPointerStart.y;
+            if (Math.sqrt(dx * dx + dy * dy) >= 20) {
+                ctrlSend({ type: 'swipe', x1: ctrlPointerStart.x, y1: ctrlPointerStart.y, x2: p.x, y2: p.y, duration: Date.now() - ctrlPointerStart.time });
+            }
+        });
+        ctrlCanvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            const t = e.touches[0];
+            ctrlPointerDown = true;
+            const p = ctrlCoords(t.clientX, t.clientY);
+            ctrlPointerStart = { x: p.x, y: p.y, time: Date.now() };
+            ctrlLastMove = Date.now();
+        }, { passive: false });
+        ctrlCanvas.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            if (!ctrlPointerDown) return;
+            const now = Date.now();
+            if (now - ctrlLastMove < 50) return;
+            ctrlLastMove = now;
+            const t = e.touches[0];
+            const p = ctrlCoords(t.clientX, t.clientY);
+            ctrlSend({ type: 'swipe_move', x: p.x, y: p.y });
+        }, { passive: false });
+        ctrlCanvas.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            if (!ctrlPointerDown) return;
+            ctrlPointerDown = false;
+            const t = e.changedTouches[0];
+            const p = ctrlCoords(t.clientX, t.clientY);
+            const dx = p.x - ctrlPointerStart.x, dy = p.y - ctrlPointerStart.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist < 20) ctrlSend({ type: 'tap', x: p.x, y: p.y });
+            else ctrlSend({ type: 'swipe', x1: ctrlPointerStart.x, y1: ctrlPointerStart.y, x2: p.x, y2: p.y, duration: Date.now() - ctrlPointerStart.time });
+        }, { passive: false });
+
+        $('btn-back').addEventListener('click', () => ctrlSend({ type: 'keyevent', action: 'back' }));
+        $('btn-home').addEventListener('click', () => ctrlSend({ type: 'keyevent', action: 'home' }));
+        $('btn-recents').addEventListener('click', () => ctrlSend({ type: 'keyevent', action: 'recents' }));
+        $('btn-disconnect').addEventListener('click', () => backToCtrl('已手动断开'));
+
+        // ================= 部署 + 日志 =================
+        function setStatus(msg) { $('status').textContent = msg; }
+        function setOutput(text, isError) {
+            $('output').textContent = text;
+            $('output').className = 'output' + (isError ? ' error' : '');
+        }
+        function readParams() {
+            return {
+                host: $('host').value.trim(),
+                port: $('port').value.trim(),
+                username: $('username').value.trim(),
+                password: $('password').value,
+                maxConcurrent: $('maxConcurrent').value.trim(),
+                lines: $('lines').value.trim()
+            };
+        }
+
+        $('btn-deploy').addEventListener('click', async () => {
+            const p = readParams();
+            if (!p.host) return setStatus('请填写服务器地址');
+            if (!p.password) return setStatus('请填写 root 密码');
+            const btn = $('btn-deploy');
+            btn.disabled = true;
+            setStatus('正在部署，可能需要 1-3 分钟，请稍候...');
+            setOutput('部署中...');
+            try {
+                const res = await fetch('/api/deploy', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(p)
+                });
+                const data = await res.json();
+                if (data.ok) { setStatus('部署完成'); setOutput(data.out || '部署完成'); }
+                else { setStatus('部署失败'); setOutput(data.error || '部署失败', true); }
+            } catch (e) {
+                setStatus('请求出错'); setOutput('请求出错：' + e.message, true);
+            } finally { btn.disabled = false; }
+        });
+
+        $('btn-logs').addEventListener('click', async () => {
+            const p = readParams();
+            if (!p.host) return setStatus('请填写服务器地址');
+            if (!p.password) return setStatus('请填写 root 密码');
+            const btn = $('btn-logs');
+            btn.disabled = true;
+            setStatus('正在查询日志...');
+            setOutput('查询中...');
+            try {
+                const res = await fetch('/api/logs', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(p)
+                });
+                const data = await res.json();
+                if (data.ok) { setStatus('查询完成'); setOutput(data.out || '(无输出)'); }
+                else { setStatus('查询失败'); setOutput(data.error || '查询失败', true); }
+            } catch (e) {
+                setStatus('请求出错'); setOutput('请求出错：' + e.message, true);
+            } finally { btn.disabled = false; }
+        });
+
+        $('btn-clear').addEventListener('click', () => { setOutput('就绪。'); setStatus(''); });
+
+        // ================= 初始化 =================
+        async function init() {
+            let ip = '';
+            try {
+                const res = await fetch('/api/config');
+                const data = await res.json();
+                ip = data.serverIp || '';
+            } catch (e) { /* 忽略 */ }
+            if (ip) {
+                $('host').value = ip;
+                $('ctrl-server-url').value = 'wss://' + ip + ':3000';
+            }
+        }
+
+        // 修改部署区 IP 时，联动更新控制区服务器地址
+        $('host').addEventListener('input', () => {
+            const ip = $('host').value.trim();
+            if (ip) $('ctrl-server-url').value = 'wss://' + ip + ':3000';
+        });
+
+        init();
+    </script>
+</body>
+</html>

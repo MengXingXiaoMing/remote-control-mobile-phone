@@ -1,0 +1,333 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    background: #0d1117;
+    color: #e6edf3;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.screen {
+    display: none;
+    width: 100%;
+    height: 100vh;
+    flex-direction: column;
+}
+
+.screen.active {
+    display: flex;
+}
+
+/* ===== 连接界面 ===== */
+#connect-screen {
+    justify-content: center;
+    align-items: center;
+}
+
+.connect-container {
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 16px;
+    padding: 40px;
+    width: 90%;
+    max-width: 400px;
+    text-align: center;
+}
+
+.connect-container h1 {
+    font-size: 28px;
+    margin-bottom: 8px;
+    background: linear-gradient(135deg, #58a6ff, #bc8cff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.subtitle {
+    color: #8b949e;
+    font-size: 14px;
+    margin-bottom: 32px;
+}
+
+.input-group {
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.input-group label {
+    display: block;
+    font-size: 13px;
+    color: #8b949e;
+    margin-bottom: 6px;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 12px 16px;
+    background: #0d1117;
+    border: 1px solid #30363d;
+    border-radius: 8px;
+    color: #e6edf3;
+    font-size: 16px;
+    transition: border-color 0.2s;
+}
+
+.input-group input:focus {
+    outline: none;
+    border-color: #58a6ff;
+}
+
+.btn-primary {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, #238636, #2ea043);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.btn-primary:hover {
+    opacity: 0.9;
+}
+
+.btn-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.status-text {
+    margin-top: 16px;
+    font-size: 14px;
+    min-height: 20px;
+}
+
+.status-text.error {
+    color: #f85149;
+}
+
+.status-text.success {
+    color: #3fb950;
+}
+
+/* ===== 控制界面 ===== */
+#control-screen {
+    background: #000;
+}
+
+#status-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 16px;
+    background: #161b22;
+    border-bottom: 1px solid #30363d;
+    font-size: 13px;
+}
+
+#device-info {
+    color: #8b949e;
+}
+
+#fps-counter {
+    color: #58a6ff;
+    font-family: monospace;
+}
+
+#canvas-container {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    position: relative;
+    background: #000;
+}
+
+#screen-canvas {
+    max-width: 100%;
+    max-height: 100%;
+    cursor: pointer;
+    touch-action: none;
+}
+
+#loading-overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #8b949e;
+    font-size: 16px;
+}
+
+#loading-overlay.hidden {
+    display: none;
+}
+
+#control-bar {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px;
+    background: #161b22;
+    border-top: 1px solid #30363d;
+}
+
+.btn-control {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 8px 16px;
+    background: #21262d;
+    border: 1px solid #30363d;
+    border-radius: 8px;
+    color: #e6edf3;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.btn-control:hover {
+    background: #30363d;
+}
+
+.btn-control:active {
+    transform: scale(0.95);
+}
+
+.btn-danger {
+    color: #f85149;
+    border-color: #da3633;
+}
+
+.btn-danger:hover {
+    background: #da363333;
+}
+
+@media (max-width: 600px) {
+    .connect-container {
+        padding: 24px;
+    }
+    .btn-control {
+        padding: 8px 10px;
+        font-size: 11px;
+    }
+}
+
+/* ===== 登录/注册界面 ===== */
+#auth-screen {
+    justify-content: center;
+    align-items: center;
+}
+
+.auth-container {
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 16px;
+    padding: 40px;
+    width: 90%;
+    max-width: 400px;
+    text-align: center;
+}
+
+.auth-container h1 {
+    font-size: 28px;
+    margin-bottom: 8px;
+    background: linear-gradient(135deg, #58a6ff, #bc8cff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.auth-tabs {
+    display: flex;
+    margin-bottom: 24px;
+    background: #0d1117;
+    border-radius: 8px;
+    padding: 4px;
+}
+
+.auth-tab {
+    flex: 1;
+    padding: 10px;
+    background: transparent;
+    border: none;
+    border-radius: 6px;
+    color: #8b949e;
+    font-size: 15px;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.auth-tab.active {
+    background: #21262d;
+    color: #e6edf3;
+    font-weight: 600;
+}
+
+.captcha-row {
+    display: flex;
+    gap: 8px;
+    align-items: stretch;
+}
+
+.captcha-row input {
+    flex: 1;
+    min-width: 0;
+}
+
+.captcha-img {
+    width: 120px;
+    height: 46px;
+    background: #f2f4f7;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.captcha-img svg {
+    display: block;
+}
+
+.user-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.logged-user {
+    color: #8b949e;
+    font-size: 13px;
+}
+
+.link-btn {
+    background: none;
+    border: none;
+    color: #58a6ff;
+    font-size: 13px;
+    cursor: pointer;
+    padding: 0;
+}
+
+.link-btn:hover {
+    text-decoration: underline;
+}
+
+@media (max-width: 600px) {
+    .auth-container {
+        padding: 24px;
+    }
+}

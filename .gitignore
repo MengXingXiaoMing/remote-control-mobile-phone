@@ -1,0 +1,31 @@
+# ===== 密钥与敏感配置（严禁提交） =====
+config.txt
+relay-server/certs/server.key
+relay-server/certs/server.crt
+android-app/app/src/main/res/raw/server_cert.crt
+
+# ===== Node.js 依赖 =====
+node_modules/
+admin/node_modules/
+relay-server/node_modules/
+*.log
+
+# ===== Android 构建产物 =====
+android-app/.gradle/
+android-app/build/
+android-app/app/build/
+android-app/local.properties
+android-app/.idea/
+android-app/captures/
+android-app/.externalNativeBuild/
+android-app/.cxx/
+
+# ===== IDE 与系统文件 =====
+.idea/
+*.iml
+.DS_Store
+Thumbs.db
+
+# ===== 临时文件 =====
+*.tmp
+*.temp
