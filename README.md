@@ -53,7 +53,25 @@
 SERVER_IP=你的公网IP
 ```
 
-### 第二步：部署中继服务器
+### 第二步：生成 SSL 证书
+
+中继服务器使用自签名证书实现 WSS 加密。首次部署前，请在服务器上生成一对证书（`server.crt` / `server.key`）：
+
+```bash
+mkdir -p relay-server/certs
+openssl req -x509 -newkey rsa:2048 -nodes \
+  -keyout relay-server/certs/server.key \
+  -out relay-server/certs/server.crt \
+  -days 3650 \
+  -subj "/CN=remote-control" \
+  -addext "subjectAltName=IP:你的公网IP,DNS:localhost"
+```
+
+生成后，把 `server.crt` 的内容同步到安卓端：复制 `android-app/app/src/main/res/raw/server_cert.crt.example` 为 `server_cert.crt`，并用你生成的证书内容替换。
+
+> 说明：仓库内只提供不含 IP 的 `server.crt.example` / `server_cert.crt.example` 占位模板，仅作格式参考。若证书缺失，服务器会退化为明文 HTTP，此时需把 App 和配置里的 `wss://` 改为 `ws://`。
+
+### 第三步：部署中继服务器
 
 **方式 A：用管理面板部署（推荐）**
 
@@ -70,7 +88,7 @@ pm2 start server.js --name relay
 pm2 save
 ```
 
-### 第三步：构建并安装 Android App
+### 第四步：构建并安装 Android App
 
 1. 用 Android Studio 打开 `android-app/` 文件夹，等待 Gradle 同步
 2. 把默认服务器地址改成你的服务器：可直接在 App 首页的「服务器地址」输入框里填写，或修改 `app/src/main/java/com/remotecontrol/MainActivity.kt` 里的 `DEFAULT_SERVER_URL`（默认值 `wss://你的服务器IP:3000`）
@@ -114,26 +132,9 @@ pm2 save
 - 被控端/控制端 → 服务器：WebSocket（WSS 加密）
 - 中继服务器使用**自签名证书**，浏览器无法直接信任，因此管理面板内置了本地 WebSocket 代理：浏览器连 `ws://localhost:8899/ws`，由本机 Node 信任自签名证书后转发到 `wss://服务器IP:3000`，从而规避浏览器证书报错。
 
-### SSL 证书生成
+### SSL 证书
 
-为避免把真实服务器 IP 和证书提交到公开仓库，仓库内**不包含真实证书**，仅提供不含 IP 的占位模板：
-
-- `relay-server/certs/server.crt.example`
-- `android-app/app/src/main/res/raw/server_cert.crt.example`
-
-首次部署前，请在服务器上自行生成一对自签名证书（命名为 `server.crt` / `server.key`）：
-
-```bash
-mkdir -p relay-server/certs
-openssl req -x509 -newkey rsa:2048 -nodes \
-  -keyout relay-server/certs/server.key \
-  -out relay-server/certs/server.crt \
-  -days 3650 \
-  -subj "/CN=remote-control" \
-  -addext "subjectAltName=IP:你的公网IP,DNS:localhost"
-```
-
-生成后，把 `server.crt` 的内容同步到安卓端：复制 `android-app/app/src/main/res/raw/server_cert.crt.example` 为 `server_cert.crt`，并用你生成的证书内容替换。如证书缺失，服务器会以明文 HTTP 运行，此时请把 App 和配置里的 `wss://` 改为 `ws://`。
+为避免把真实服务器 IP 和证书提交到公开仓库，仓库内**不包含真实证书**，仅提供不含 IP 的占位模板（`relay-server/certs/server.crt.example`、`android-app/app/src/main/res/raw/server_cert.crt.example`）。证书生成步骤见上文「快速开始 → 第二步：生成 SSL 证书」。
 
 ## 性能参数
 

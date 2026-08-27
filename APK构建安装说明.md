@@ -12,7 +12,7 @@
 
 1. 打开 Android Studio
 2. 点 **Open an existing project**
-3. 选择文件夹：`e:\code\ai solo\远程控制手机\android-app`
+3. 选择文件夹：`e:\code\ai solo\Remote control mobile phone software\android-app`
 4. 等待右下角 Gradle 同步完成（进度条走完）
 
 ### 第三步：构建 APK
@@ -62,12 +62,14 @@ android-app\app\build\outputs\apk\debug\app-debug.apk
 
 在 App 的「服务器地址」栏填：
 ```
-ws://你的阿里云公网IP:3000
+wss://你的阿里云公网IP:3000
 ```
 
-比如：`ws://47.123.45.67:3000`
+比如：`wss://47.123.45.67:3000`
 
 填好后 App 会自动保存，下次打开不用再填。
+
+> 注意：前缀是 `wss://`（加密连接）。App 会校验服务器证书，因此在构建 APK 前，需先把服务器生成的 `server.crt` 内容放入 `android-app/app/src/main/res/raw/server_cert.crt`（复制 `server_cert.crt.example` 后替换内容）。否则连接会因证书不匹配而失败。
 
 ---
 
@@ -80,7 +82,7 @@ ws://你的阿里云公网IP:3000
 4. 把屏幕上的 6 位配对码告诉你
 
 ### 你的电脑上：
-1. 双击 `打开控制页面.bat`（在 `e:\code\ai solo\远程控制手机\` 里）
+1. 双击 `启动管理面板.bat`（在 `e:\code\ai solo\Remote control mobile phone software\` 里，或运行 `open_controller.ps1`）
 2. 输入配对码 → 点连接
 3. 等妈妈在平板上点「允许」
 4. 开始远程操作
@@ -100,5 +102,5 @@ A: 每个品牌位置不一样：
 直接在设置里搜"无障碍"最快。
 
 **Q: 服务器地址填什么？**
-A: 填你阿里云服务器的公网IP，前缀是 `ws://`，后缀是 `:3000`。
-比如你的IP是 47.123.45.67，就填 `ws://47.123.45.67:3000`
+A: 填你阿里云服务器的公网IP，前缀是 `wss://`，后缀是 `:3000`。
+比如你的IP是 47.123.45.67，就填 `wss://47.123.45.67:3000`
