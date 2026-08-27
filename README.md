@@ -31,7 +31,8 @@
 │   ├── server.js        配对与转发逻辑
 │   └── certs/           证书目录（仓库内仅有 server.crt.example 模板，真实证书需自行生成）
 ├── android-app/         Android 被控端 App
-├── open_controller.ps1  一键启动管理面板
+├── 启动管理面板.bat    一键启动管理面板（推荐，双击即用，自动装依赖并打开浏览器）
+├── open_controller.ps1  一键启动管理面板（PowerShell 版，等效）
 ├── config.txt           服务器公网 IP 配置（已 git 忽略，模板见 config.txt.example）
 └── config.txt.example   配置模板
 ```
@@ -55,7 +56,9 @@ SERVER_IP=你的公网IP
 
 ### 第二步：生成 SSL 证书
 
-中继服务器使用自签名证书实现 WSS 加密。首次部署前，请在服务器上生成一对证书（`server.crt` / `server.key`）：
+中继服务器使用自签名证书实现 WSS 加密。首次部署前，在**本地**生成一对证书（`server.crt` / `server.key`），放到 `relay-server/certs/` 目录下——部署时管理面板会自动上传到服务器，无需手动登录服务器。
+
+在 Git Bash（或 Linux/Mac 终端）里执行：
 
 ```bash
 mkdir -p relay-server/certs
@@ -75,7 +78,7 @@ openssl req -x509 -newkey rsa:2048 -nodes \
 
 **方式 A：用管理面板部署（推荐）**
 
-1. 双击 `open_controller.ps1`（或执行 `node admin/admin-server.js`），打开 `http://localhost:8899`
+1. 双击 `启动管理面板.bat`（或运行 `open_controller.ps1`），自动打开 `http://localhost:8899`
 2. 页面下方「服务器配置（部署）」填写：IP、端口（22）、用户名（root）、root 密码、排队上限
 3. 点击「部署到服务器」，等待 1-3 分钟
 
@@ -106,7 +109,7 @@ pm2 save
 
 ### 控制端（你的电脑上）
 
-1. 双击 `open_controller.ps1` 打开管理面板
+1. 双击 `启动管理面板.bat` 打开管理面板
 2. 页面顶部「远程控制」：填服务器地址（自动读取 `config.txt`）和 6 位配对码
 3. 点「连接设备」
 4. 对方手机弹出「允许」对话框，点「允许」
